@@ -7,10 +7,11 @@ runs:
       uses: erlef/setup-beam@v1
       with:
         version-file: ".tool-versions"
+        version-type: strict
 
     - name: Cache deps
       id: cache-deps
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       env:
         cache-name: cache-elixir-deps
       with:
@@ -21,7 +22,7 @@ runs:
 
     - name: Cache compiled build
       id: cache-build
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       env:
         cache-name: cache-compiled-build
       with:
