@@ -1,0 +1,54 @@
+all: help
+
+setup: ## Local: Setup local dev environment
+	asdf install
+	export $$(cat .env) && \
+		mix hex.repo add oban https://getoban.pro/repo \
+			--fetch-public-key SHA256:4/OSKi0NRF91QVVXlGAhb/BIMLnK8NHcx/EWs+aIWPc \
+			--auth-key $$OBAN_AUTH_KEY
+
+up: ## Local: Updat
+	mix deps.get
+	npm install --prefix assets
+	mix ecto.migrate
+
+server: ## Local: Start phoenix server
+	export ERL_AFLAGS="-kernel inet_dist_listen_min 45000 inet_dist_listen_max 45000"
+	iex --sname <%= otp_app %> --cookie secret -S mix phx.server
+
+build: ## Local: Build docker image locally
+	export $$(cat .env) && \
+    docker build --secret id=oban_auth_key,env=OBAN_AUTH_KEY -t <%= otp_app %>:local .
+
+check: ## Local: Run CI checks locally
+	MIX_ENV=test mix clean
+	MIX_ENV=test mix deps.get
+	MIX_ENV=test mix format --check-formatted
+	MIX_ENV=test mix compile --warnings-as-errors
+	MIX_ENV=test mix test --cover
+	make build
+
+todo: ## Local: Show pending TODO comments
+	@grep -Rn --color 'TODO\|FIXME\|HACK' lib test
+
+console: ## Remote: Elixir Console
+	fly ssh console --pty -C '/app/bin/<%= otp_app %> remote'
+
+deploy: ## Remote: Deploy current working directory
+	export $$(cat .env) && \
+    fly deploy --remote-only --build-secret oban_auth_key=OBAN_AUTH_KEY
+
+logs: ## Remote: Show logs
+	fly logs
+
+status: ## Remote: Show running deployments
+	fly status
+
+secrets: ## Remote: Update secrets from fly.secret
+	cat fly.secret | fly secrets import
+
+help:
+	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
+		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
+
+.PHONY: up server build check todo console deploy logs status secrets help

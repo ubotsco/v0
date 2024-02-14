@@ -1,0 +1,3 @@
+erlang <%= versions.erlang %>
+elixir <%= versions.elixir %>-otp-<%= Version.parse!(versions.erlang).major %>
+nodejs <%= versions.nodejs %>

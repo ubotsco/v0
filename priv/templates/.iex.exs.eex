@@ -1,0 +1,10 @@
+import Ecto
+import Ecto.Query
+
+alias Sandbox.Repo
+
+defmodule Console do
+  # Put your custom iex code here
+end
+
+import Console

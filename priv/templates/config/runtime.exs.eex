@@ -1,0 +1,51 @@
+import Config
+
+if config_env() == :prod do
+  app_name = System.fetch_env!("FLY_APP_NAME")
+  database_url = System.fetch_env!("DATABASE_URL")
+
+  socket_opts = fn url ->
+    if String.contains?(url, ".internal"), do: [:inet6], else: []
+  end
+
+  # Configure Database
+  config <%= inspect(otp_app) %>, <%= app_namespace %>.Repo,
+    url: database_url,
+    pool_size: String.to_integer(System.get_env("DATABASE_POOL_SIZE") || "10"),
+    socket_options: socket_opts.(database_url)
+
+  # Disable prepared statements for Supabase
+  # prepare: :unnamed
+
+  # Configure Endpoint
+  config <%= inspect(otp_app) %>, <%= web_namespace %>.Endpoint,
+    url: [host: System.fetch_env!("DOMAIN"), port: 443, scheme: "https"],
+    http: [
+      ip: {0, 0, 0, 0, 0, 0, 0, 0},
+      port: 4000
+    ],
+    secret_key_base: System.fetch_env!("SECRET_KEY_BASE")
+
+  # Configure DNS Cluster
+  config <%= inspect(otp_app) %>, DNSCluster, query: "#{app_name}.internal"
+
+  # Configure Oban
+  config <%= inspect(otp_app) %>, Oban,
+    repo: <%= app_namespace %>.Repo,
+    plugins: [
+      {Oban.Plugins.Pruner, max_age: 7 * 24 * 60 * 60}
+    ]
+
+  # Configure Mailer
+  #     config <%= inspect(otp_app) %>, <%= app_namespace %>.Mailer,
+  #       adapter: Swoosh.Adapters.Mailgun,
+  #       api_key: System.get_env("MAILGUN_API_KEY"),
+  #       domain: System.get_env("MAILGUN_DOMAIN")
+
+  # Sentry
+  config :sentry,
+    dsn: System.fetch_env!("SENTRY_DSN"),
+    environment_name: System.fetch_env!("SENTRY_ENV"),
+    included_environments: [System.fetch_env!("SENTRY_ENV")],
+    release: System.fetch_env!("VERSION")
+end
