@@ -5,7 +5,7 @@ if config_env() == :prod do
   database_url = System.fetch_env!("DATABASE_URL")
 
   socket_opts = fn url ->
-    if String.contains?(url, ".internal"), do: [:inet6], else: []
+    if url =~ ~r/\.(internal|flycast)/, do: [:inet6], else: []
   end
 
   # Configure Database

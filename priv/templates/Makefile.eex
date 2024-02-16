@@ -7,7 +7,7 @@ setup: ## Local: Setup local dev environment
 			--fetch-public-key SHA256:4/OSKi0NRF91QVVXlGAhb/BIMLnK8NHcx/EWs+aIWPc \
 			--auth-key $$OBAN_AUTH_KEY
 
-up: ## Local: Updat
+up: ## Local: Update
 	mix deps.get
 	npm install --prefix assets
 	mix ecto.migrate
@@ -34,9 +34,22 @@ todo: ## Local: Show pending TODO comments
 console: ## Remote: Elixir Console
 	fly ssh console --pty -C '/app/bin/<%= otp_app %> remote'
 
+livebook: ## Remote: Start livebook
+	node=$$(fly ssh console -C '/app/bin/<%= otp_app %> rpc "IO.puts(\"#{Node.self}:#{Node.get_cookie}\")"') && \
+  ERL_AFLAGS="-hidden -proto_dist inet6_tcp" \
+  LIVEBOOK_DEFAULT_RUNTIME="attached:$${node}" \
+    livebook server --port 8888 "$(PWD)/notebooks"
+
+observer: ## Remote: Start observer
+	node=$$(fly ssh console -C '/app/bin/<%= otp_app %> rpc "IO.puts(\"#{Node.self} #{Node.get_cookie}\")"') && \
+	iex --erl "-hidden -proto_dist inet6_tcp" \
+      --sname iex \
+      --cookie "$${node#* }" \
+      -e "IO.inspect(Node.connect(:'$${node% *}')); :observer.start"
+
 deploy: ## Remote: Deploy current working directory
 	export $$(cat .env) && \
-    fly deploy --remote-only --build-secret oban_auth_key=OBAN_AUTH_KEY
+		fly deploy --remote-only --build-secret "oban_auth_key=$$OBAN_AUTH_KEY"
 
 logs: ## Remote: Show logs
 	fly logs
@@ -51,4 +64,4 @@ help:
 	@grep -E '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-20s\033[0m %s\n", $$1, $$2}'
 
-.PHONY: up server build check todo console deploy logs status secrets help
+.PHONY: up server build check todo console livebook observer deploy logs status secrets help

@@ -36,6 +36,7 @@ defmodule Mix.Tasks.V0 do
       {:eex, "config/runtime.exs.eex", "config/runtime.exs"},
 
       # Docker
+      {:eex, "rel/env.sh.eex.eex", "rel/env.sh.eex"},
       {:eex, "rel/overlays/bin/server.sh.eex", "rel/overlays/bin/server"},
       {:eex, "Dockerfile.eex", "Dockerfile"},
       {:eex, ".dockerignore.eex", ".dockerignore"},
