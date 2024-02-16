@@ -84,6 +84,10 @@ ENV ERL_AFLAGS "-proto_dist inet6_tcp"
 COPY --from=elixir_builder --chown=nobody:root /app/_build/${MIX_ENV}/rel/<%= otp_app %> ./
 COPY .iex.exs ./
 
+# Add version as ENV var
+ARG version
+ENV VERSION=$version
+
 USER nobody
 EXPOSE 4000
 CMD ["/app/bin/server"]

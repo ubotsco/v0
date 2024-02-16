@@ -22,10 +22,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup-elixir
       - run: |
-          export $(cat .env) && \
-            mix hex.repo add oban https://getoban.pro/repo \
-              --fetch-public-key SHA256:4/OSKi0NRF91QVVXlGAhb/BIMLnK8NHcx/EWs+aIWPc \
-              --auth-key $OBAN_AUTH_KEY
+          export $(cat .env)
+          mix hex.repo add oban https://getoban.pro/repo \
+            --fetch-public-key SHA256:4/OSKi0NRF91QVVXlGAhb/BIMLnK8NHcx/EWs+aIWPc \
+            --auth-key $OBAN_AUTH_KEY
 
       - name: Install dependencies
         run: mix do deps.get, deps.compile
@@ -93,7 +93,10 @@ jobs:
       - uses: actions/checkout@v4
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: |
-          export $(cat .env) && \
-            flyctl deploy --remote-only --build-secret "oban_auth_key=$OBAN_AUTH_KEY"
+          export $(cat .env)
+          flyctl deploy \
+            --remote-only \
+            --build-secret "oban_auth_key=$OBAN_AUTH_KEY" \
+            --build-arg "version=$(git rev-parse --short=8 HEAD)"
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

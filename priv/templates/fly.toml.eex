@@ -5,7 +5,8 @@ primary_region = 'iad'
 [build]
 
 [env]
-  DOMAIN = 'myapp.fly.dev'
+  DOMAIN     = 'myapp.fly.dev'
+  SENTRY_ENV = 'live'
 
 [http_service]
   auto_start_machines  = false
