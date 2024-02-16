@@ -46,6 +46,11 @@ defmodule Mix.Tasks.V0 do
        ".github/actions/setup-elixir/action.yaml"},
       {:eex, ".github/workflows/main.yaml.eex", ".github/workflows/main.yaml"},
 
+      # Fly
+      {:eex, "fly.toml.eex", "fly.toml"},
+      {:eex, "fly.secret.eex", "fly.secret"},
+      {:eex, ".gitattributes.eex", ".gitattributes"},
+
       # Utilities
       {:eex, ".iex.exs.eex", ".iex.exs"},
       {:eex, "Makefile.eex", "Makefile"}

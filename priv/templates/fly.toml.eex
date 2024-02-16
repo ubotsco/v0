@@ -1,0 +1,33 @@
+app            = 'myapp'
+kill_signal    = 'SIGTERM'
+primary_region = 'iad'
+
+[build]
+
+[env]
+  DOMAIN = 'myapp.fly.dev'
+
+[http_service]
+  auto_start_machines  = false
+  auto_stop_machines   = false
+  force_https          = true
+  internal_port        = 4000
+  min_machines_running = 1
+  processes            = [ 'app' ]
+
+  [http_service.concurrency]
+    hard_limit = 1000
+    soft_limit = 1000
+    type       = 'connections'
+
+  [[http_service.checks]]
+    grace_period = "5s"
+    interval     = "10s"
+    method       = "GET"
+    path         = "/up"
+    timeout      = "1s"
+
+[[vm]]
+  cpu_kind = 'shared'
+  cpus     = 1
+  memory   = '512mb'
