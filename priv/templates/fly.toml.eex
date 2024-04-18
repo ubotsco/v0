@@ -4,6 +4,9 @@ primary_region = 'iad'
 
 [build]
 
+[deploy]
+  strategy = "bluegreen"
+
 [env]
   DOMAIN     = 'myapp.fly.dev'
   SENTRY_ENV = 'live'
@@ -13,7 +16,6 @@ primary_region = 'iad'
   auto_stop_machines   = false
   force_https          = true
   internal_port        = 4000
-  min_machines_running = 1
   processes            = [ 'app' ]
 
   [http_service.concurrency]
@@ -28,7 +30,11 @@ primary_region = 'iad'
     path         = "/up"
     timeout      = "1s"
 
+[metrics]
+  path = "/metrics"
+  port = 9568
+
 [[vm]]
-  cpu_kind = 'shared'
+  cpu_kind = "shared"
   cpus     = 1
-  memory   = '512mb'
+  memory   = "512mb"
